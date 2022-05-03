@@ -1,5 +1,32 @@
-const socket = io("http://localhost:3000");
+const socket = io("http://172.16.102.130:3000");
+const userDiv = document.getElementById("users")
 
 socket.on("connect", () => {
-    console.log("CONNECTED");
+    const username = prompt("Please Enter A Username", "user5301")
+    socket.emit("new-user", username)
 })
+
+socket.on("users", (u) => {
+    removeAllChildNodes(userDiv);
+    const users = Object.keys(u);
+    for(let i = 0; i < users.length; i++) {
+        const gameTag = document.createElement("hi")
+        gameTag.innerHTML = users[i];
+        userDiv.append(gameTag)
+    }
+})
+
+socket.on("draw-output", (draw) => {
+    linesArray = draw;
+    redraw();
+})
+
+function sendDrawData(array) {
+    socket.emit("draw-input", array)
+}
+
+function removeAllChildNodes(parent) {
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
+}
