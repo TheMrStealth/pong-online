@@ -13,21 +13,47 @@ const io = new Server(server,
 const cors = require("cors");
 app.use(cors());
 
+const TIME_LIMIT = 120
 const users = {};
+const queue = {};
 
 io.on('connection', (socket) => {
     
   socket.on("new-user", (gameTag) => {
     users[gameTag] = socket.id;
+    queue.push(gameTag)
+    if (nextInQueue(gameTag)) io.to(users[gameTag]).emit("choose-word")
     io.emit("new player", users)
   })
+
+  socket.on("start-game", (w) => {
+    word = w
+    interval = startTimer()
+  })
+  
 
   socket.on("draw-input", (draw) => {
     io.emit("draw-output", draw)
   })
 
   socket.on("disconnect", (reason) => handleDisconnect(socket, reason))
+  function startTimer() {
+    return setInterval (()=>{
+      time--
+
+      if(timer > 0){
+        io.emit("timer", time)
+      }else {
+        clearInterval(interval)
+        io.emit("times-up")
+        queue.forEach(player => {
+          if(nextInQueue(player)) io.to(users[player]).emit("choose-word")
+        })
+      }
+    }, 1000)
+  }
 });
+
 
 function handleDisconnect (socket, reason) {
   Object.entries(users).forEach(([key, value]) => {
@@ -36,6 +62,12 @@ function handleDisconnect (socket, reason) {
       console.log("USER: ", key, "disconnected, reason: ", reason)
     }
   })
+}
+
+
+function nextInQueue (user) {
+  if(queue[currentRound % queue.length] === user) return true
+  else return false
 }
 
 app.use(express.static('public'))

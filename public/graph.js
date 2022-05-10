@@ -11,6 +11,8 @@ var currentBg = "white";
 
 // INITIAL LAUNCH
 
+let isPlaying = false
+
 createCanvas();
 
 // BUTTON EVENT HANDLERS
@@ -151,7 +153,7 @@ function mousedown(canvas, evt) {
 
 function mousemove(canvas, evt) {
 
-    if(isMouseDown){
+    if(isMouseDown && isPlaying){
         var currentPosition = getMousePos(canvas, evt);
         ctx.lineTo(currentPosition.x, currentPosition.y)
         ctx.stroke();

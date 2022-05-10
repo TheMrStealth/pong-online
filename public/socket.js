@@ -16,6 +16,12 @@ socket.on("users", (u) => {
     }
 })
 
+socket.on("choose-word", ()=>{
+    const word = window.prompt("choose-word")
+    isPlaying = true
+    socket.emit("start-game", word)
+})
+
 socket.on("draw-output", (draw) => {
     linesArray = draw;
     redraw();
